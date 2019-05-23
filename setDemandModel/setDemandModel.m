@@ -14,7 +14,7 @@ function flag = setDemandModel(LongTermPastData)
     %% Input errors check and Load data
     if exist(LongTermPastData) == 0    % if the filename is not null
         flag = -1;  % return error
-        errMessage = ['The follwing file is not found: ', LongTermPastData ];
+        errMessage = ['The follwing csv file is not found: ', LongTermPastData ];
         disp(errMessage)
         return
     else  % if the fine name is null
@@ -25,7 +25,7 @@ function flag = setDemandModel(LongTermPastData)
     filepath = fileparts(LongTermPastData); 
     
     %% parameters
-    ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
+    ValidDays = 3; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
 
     %% Devide the data into training and validation
@@ -37,8 +37,8 @@ function flag = setDemandModel(LongTermPastData)
     % Note: 0 means not true. If this function got the past data, model have to be trained
     op_flag = 1; % 1: training mode
     shortPast = past_load(end-7*96+1:end, :);
-    kmeans_bayesian(op_flag, past_load, shortPast, filepath);
-    fitnet_ANN(op_flag, past_load, shortPast, filepath);
+    DMset_kmeans_bayesian(op_flag, past_load, shortPast, filepath);
+    DMset_fitnet_ANN(op_flag, past_load, shortPast, filepath);
     
     %% Validate the performance of each model
     op_flag = 2; % 2: forecasting mode      
@@ -46,11 +46,11 @@ function flag = setDemandModel(LongTermPastData)
         FistTimeInValid = size(train_data,1)+1+96*(day-1);  % Indicator of the time instance for validation data in past_load
         short_past_load = past_load(FistTimeInValid-96*7:FistTimeInValid-1, 1:end); % size of short_past_load is always "672*11" for one week data set
         valid_predictor = valid_predictors(1+(day-1)*96:day*96, 1:end);  % predictor for 1 day (96 data instances)
-        y_ValidEstIndv(1).data(:,day) = kmeans_bayesian(op_flag, valid_predictor, short_past_load, filepath);
-        y_ValidEstIndv(2).data(:,day) = fitnet_ANN(op_flag, valid_predictor, short_past_load, filepath);
+        y_ValidEstIndv(1).data(:,day) = DMset_kmeans_bayesian(op_flag, valid_predictor, short_past_load, filepath);
+        y_ValidEstIndv(2).data(:,day) = DMset_fitnet_ANN(op_flag, valid_predictor, short_past_load, filepath);
     end
     %% Optimize the coefficients for the additive model
-    coeff = pso_main(y_ValidEstIndv, valid_data(:,end)); 
+    coeff = DMset_pso_main(y_ValidEstIndv, valid_data(:,end)); 
 
     %% Generate probability interval using validation result
     for hour = 1:24
@@ -88,8 +88,8 @@ function flag = setDemandModel(LongTermPastData)
     end   
     
     %% Save .mat files
-    s1 = 'pso_coeff_';
-    s2 = 'err_distribution_';
+    s1 = 'DM_pso_coeff_';
+    s2 = 'DM_err_distribution_';
     s3 = num2str(past_load(1,1)); % Get building index
     name(1).string = strcat(s1,s3);
     name(2).string = strcat(s2,s3);
