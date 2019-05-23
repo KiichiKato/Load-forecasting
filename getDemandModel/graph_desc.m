@@ -2,7 +2,7 @@
 % This function is only for debug
 % -------------------------------------------------------------------
 
-function DMget_graph_desc(x, y_pred, y_true, boundaries, name, ci_percentage)
+function graph_desc(x, y_pred, y_true, boundaries, name, ci_percentage)
                 
     % Graph description for prediction result
     f = figure;

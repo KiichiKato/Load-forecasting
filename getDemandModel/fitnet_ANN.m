@@ -1,4 +1,4 @@
-function y = DMget_fitnet_ANN(flag,input,shortTermPastData,path)
+function y = fitnet_ANN(flag,input,shortTermPastData,path)
 % tic;
 
 % feature 
@@ -167,7 +167,7 @@ else
     
     building_num = num2str(ForecastExcelFile(2,1));
 
-    load_name = '\DM_fitnet_ANN_';
+    load_name = '\fitnet_ANN_';
     load_name = strcat(path,load_name,building_num,'.mat');
     
     load(load_name,'-mat');
@@ -287,7 +287,7 @@ else
 
     if exist('shortTermPastData','var')
 
-        y_err_rate = DMget_err_correction_t_2(shortTermPastData,path);
+        y_err_rate = err_correction_t_2(shortTermPastData,path);
         
         [m_ResultingData_ANN,~] = size(ResultingData_ANN);
         

@@ -1,4 +1,4 @@
-function [PastData_holiday,PastData_weekend,PastData_week] = DMget_step_group(old_format_PastData)
+function [PastData_holiday,PastData_weekend,PastData_week] = step_group(old_format_PastData)
 
     [m_old_format_PastData, ~] = size(old_format_PastData);
 

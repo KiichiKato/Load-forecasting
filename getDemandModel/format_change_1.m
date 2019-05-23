@@ -1,7 +1,7 @@
 %% Format change
 % 1 colunm demand -> 96 colunm demand
 
-function y = DMget_format_change_1(input_data)
+function y = format_change_1(input_data)
 
     new_format_PastData = input_data;
 

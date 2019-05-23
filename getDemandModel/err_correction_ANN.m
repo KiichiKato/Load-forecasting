@@ -1,4 +1,4 @@
-function y = DMget_err_correction_ANN(flag,input,Name,path)
+function y = err_correction_ANN(flag,input,Name,path)
 % tic;
 
 % feature
@@ -73,7 +73,7 @@ if flag == 1
 
     building_num = num2str(PastDataExcelFile(2,1));
 
-    save_name = '\DM_err_correction_kmeans_bayesian_';
+    save_name = '\err_correction_kmeans_bayesian_';
     save_name = strcat(path,save_name,building_num,'.mat');
 
     save(save_name);
@@ -87,7 +87,7 @@ else
 
    building_num = num2str(ForecastExcelFile(2,1));
 
-    load_name = '\DM_err_correction_kmeans_bayesian_';
+    load_name = '\err_correction_kmeans_bayesian_';
     load_name = strcat(path,load_name,building_num,'.mat');
    
     load(load_name,'-mat');

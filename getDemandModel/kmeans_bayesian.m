@@ -1,4 +1,4 @@
-function y = DMget_kmeans_bayesian(flag,input,shortTermPastData,path)
+function y = kmeans_bayesian(flag,input,shortTermPastData,path)
 % tic;
 
 % disp('Matlab demand call function')
@@ -50,10 +50,10 @@ if flag == 1
     %% Format change        
 
     % format_change_1 : new -> old
-    old_format_PastData = DM_format_change_1(new_format_PastData);
+    old_format_PastData = format_change_1(new_format_PastData);
     
     % old -> new format rechange
-    new_format_PastData = DM_format_change_2(old_format_PastData);
+    new_format_PastData = format_change_2(old_format_PastData);
     
     
     %% k-means, bayesian
@@ -66,7 +66,7 @@ if flag == 1
 
     % for train
 
-    [PastData_holiday,PastData_weekend,PastData_week] = DM_step_group(old_format_PastData);
+    [PastData_holiday,PastData_weekend,PastData_week] = step_group(old_format_PastData);
 
     % check again the size of raw_PastData because of delete
     [m_holiday_check, ~] = size(PastData_holiday);
@@ -191,7 +191,7 @@ if flag == 1
 
 
             % step_group
-            [PastData_holiday,PastData_weekend,PastData_week] = DM_step_group(raw_70_PastData);
+            [PastData_holiday,PastData_weekend,PastData_week] = step_group(raw_70_PastData);
 
             % check again the size of raw_PastData because of delete
             [m_holiday_check, ~] = size(PastData_holiday);
@@ -381,10 +381,10 @@ if flag == 1
         
         building_num = num2str(PastDataExcelFile(2,1));
         
-        Name = 'DM_err_correction_kmeans_bayesian_';
+        Name = 'err_correction_kmeans_bayesian_';
         Name = strcat(Name,building_num,'.mat');
         
-        DMget_err_correction_ANN(1,err_PastData,Name,path);
+        err_correction_ANN(1,err_PastData,Name,path);
 
         
         % PastData , Train work space data will save like .mat file
@@ -633,10 +633,10 @@ else
     
     building_num = num2str(ForecastExcelFile(2,1));
         
-    Name = 'DM_err_correction_kmeans_bayesian_';
+    Name = 'err_correction_kmeans_bayesian_';
     Name = strcat(Name,building_num,'.mat');
     
-    y_err = DMget_err_correction_ANN(2,ForecastExcelFile,Name,path);
+    y_err = err_correction_ANN(2,ForecastExcelFile,Name,path);
 
     [m_y_err,~] = size(y_err);
     
@@ -662,7 +662,7 @@ else
 
      if exist('shortTermPastData','var')
          
-        y_err_rate = DMget_err_correction_t_1(shortTermPastData,path);
+        y_err_rate = err_correction_t_1(shortTermPastData,path);
 
         [m_new_veresion_ForecastData, ~]= size(new_version_ForecastData);
 

@@ -1,4 +1,4 @@
-function y = DMget_err_correction_t_2(shortTermPastData,path)
+function y = err_correction_t_2(shortTermPastData,path)
 % tic;
 
 % feature
@@ -20,7 +20,7 @@ feature = 2:10;
     
     building_num = num2str(ShortExcelFile(2,1));
 
-    load_name = '\DM_fitnet_ANN_';
+    load_name = '\fitnet_ANN_';
     load_name = strcat(path,load_name,building_num,'.mat');
        
     load(load_name,'-mat');

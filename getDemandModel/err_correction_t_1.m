@@ -1,4 +1,4 @@
-function y = DMget_err_correction_t_1(shortTermPastData,path)
+function y = err_correction_t_1(shortTermPastData,path)
 % tic;
 
 % feature
@@ -33,7 +33,7 @@ feature = 2:6;
     % ForecastData load
     ShortData = ShortExcelFile;
 
-    old_format_ShortData = DMget_format_change_1(ShortData);
+    old_format_ShortData = format_change_1(ShortData);
 
     % ForecastData
     raw_ShortData = old_format_ShortData;
