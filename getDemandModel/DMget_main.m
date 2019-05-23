@@ -1,0 +1,6 @@
+clear all;
+clc;
+close all;
+y_pred = getDemandModel([pwd,'\','DST.csv'],...
+                        [pwd,'\','DFP.csv'],...
+                        [pwd,'\','ResultData.csv'])
