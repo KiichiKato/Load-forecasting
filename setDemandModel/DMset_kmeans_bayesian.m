@@ -165,6 +165,9 @@ if flag == 1
                 if var(abs(log10(var(PastData_week(:,7:102))))) < 0.5
                     kkk_start = abs(round(mean(log10(var(PastData_week(:,7:102)))))) - 1;
                     kkk_stop = abs(round(mean(log10(var(PastData_week(:,7:102)))))) + 1;
+                    if kkk_start < 0
+                        kkk_start = 1;
+                    end
                 else
                     kkk_start = 5;
                     kkk_stop = 12;
