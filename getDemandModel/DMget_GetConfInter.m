@@ -1,7 +1,7 @@
 % Return the boundaries of confidence interval
 
 
-function [lwBound, upBound] = DMget_GetConfInter(prob_prediction)    
+function [m, lwBound, upBound] = DMget_GetConfInter(prob_prediction)    
     %% calculate Mean, standard deviation, 95% Confidence interval
     m = mean(prob_prediction);
     s = std(prob_prediction);
