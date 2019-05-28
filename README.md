@@ -5,5 +5,5 @@
 - Koda manages to update this branch
 
 2. Develop branch
-It is not guaranteed the codes work with the test data set.
-Anybody can update(push) from your local repository without review.
+- It is not guaranteed the codes work with the test data set.
+- Anybody can update(push) from your local repository without review.
