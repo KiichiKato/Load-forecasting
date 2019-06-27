@@ -1,6 +1,0 @@
-clear all;
-clc;
-close all;
-y_pred = getDemandModel([pwd,'\','DST_201905170010.csv'],...
-                        [pwd,'\','DFP_201905172330.csv'],...
-                        [pwd,'\','ResultData.csv'])

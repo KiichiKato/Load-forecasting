@@ -13,17 +13,20 @@ function DMget_graph_desc(x, y_pred, y_true, boundaries, name, ci_percentage)
     else
         plot(zeros(x,1));
     end
+    % If we have CI to be described
     if isempty(boundaries) == 0
         plot(boundaries(:,1),'b--');
         plot(boundaries(:,2),'b--');
+        CI = 100*(1-ci_percentage);
+        legend('predicted Load', 'True', [num2str(CI) '% Prediction Interval']);
+    else
+        legend('predicted Load', 'True');
     end
-    
-    CI = 100*(1-ci_percentage);
-    
+   
+    % Labels of the graph
     xlabel('Time steps');
     ylabel('Load [MW]');
     title(name);
-    legend('predicted Load', 'True', [num2str(CI) '% Prediction Interval']);
 
 
 end
