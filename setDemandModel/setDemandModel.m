@@ -25,7 +25,7 @@ function flag = setDemandModel(LongTermPastData)
     filepath = fileparts(LongTermPastData); 
     
     %% parameters
-    ValidDays = 3; % it must be above 1 day. 3days might provide the best performance
+    ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
 
     %% Devide the data into training and validation
@@ -67,7 +67,7 @@ function flag = setDemandModel(LongTermPastData)
         y_ValidEstComb(1+(day-1)*96:day*96, 1) = y_est(:, day);
     end
     
-    % error from validation data: error[%], hours, Quaters
+    % error from validation data: error, hours, Quaters
     err = [y_ValidEstComb - valid_data(:, end) valid_predictors(:,5) valid_predictors(:,6)]; 
     % Initialize the structure for error distribution
     % structure of err_distribution.data is as below:
