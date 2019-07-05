@@ -165,7 +165,7 @@ else
    
     ForecastExcelFile = input;
     
-    building_num = num2str(ForecastExcelFile(2,1));
+    building_num = num2str(ForecastExcelFile(2,1)); 
 
     load_name = '\DM_fitnet_ANN_';
     load_name = strcat(path,load_name,building_num,'.mat');
