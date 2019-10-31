@@ -113,7 +113,7 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('TrgetData062801_062900.csv');
+    observed = csvread('TargetData.csv');
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
@@ -131,7 +131,7 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
     MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
     disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
-    disp(['MAPE of demand mean: ', num2str(MAPE(1)), '[%]'])
+    disp(['MAPE of assembled model: ', num2str(MAPE(1)), '[%]'])
     disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
     disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
     % for debugging --------------------------------------------------------------------- 
