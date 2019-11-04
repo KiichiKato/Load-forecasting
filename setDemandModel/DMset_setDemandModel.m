@@ -105,21 +105,21 @@ function flag = DMset_setDemandModel(LongTermPastData)
     flag = 1;    
     toc;
 
-%     % for debugging --------------------------------------------------------------------- 
-%     for i = 1:n_algorithms
-%         for day = 1:ValidDays
-%             predicted_load(i).data(1+(day-1)*96:day*96,:) = y_ValidEstIndv(i).data(:,day);
-%         end
-%     end
-%     MAPE(1) = mean(abs(y_ValidEstComb - valid_data(:,end))*100./valid_data(:,end)); % combined
-%     MAPE(2) = mean(abs(predicted_load(1).data - valid_data(:,end))*100./valid_data(:,end)); % k-means
-%     MAPE(3) = mean(abs(predicted_load(2).data - valid_data(:,end))*100./valid_data(:,end)); % fitnet
-%     disp(['MAPE of demand mean: ', num2str(MAPE(1)), '[%]'])
-%     disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
-%     disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])
-%     DMset_demandGraph(1:size(y_ValidEstComb,1), y_ValidEstComb, valid_data(:,end), [], 'Combined for forecast data'); % Combined
-%     DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(1).data, valid_data(:,end), [], 'k-means for forecast data'); % k-means
-%     DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(2).data, valid_data(:,end), [], 'fitnet ANN for forecast data'); % NN       
-%     % for debugging --------------------------------------------------------------------- 
+    % for debugging --------------------------------------------------------------------- 
+    for i = 1:n_algorithms
+        for day = 1:ValidDays
+            predicted_load(i).data(1+(day-1)*96:day*96,:) = y_ValidEstIndv(i).data(:,day);
+        end
+    end
+    MAPE(1) = mean(abs(y_ValidEstComb - valid_data(:,end))*100./valid_data(:,end)); % combined
+    MAPE(2) = mean(abs(predicted_load(1).data - valid_data(:,end))*100./valid_data(:,end)); % k-means
+    MAPE(3) = mean(abs(predicted_load(2).data - valid_data(:,end))*100./valid_data(:,end)); % fitnet
+    disp(['MAPE of demand mean: ', num2str(MAPE(1)), '[%]'])
+    disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
+    disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])
+    DMset_demandGraph(1:size(y_ValidEstComb,1), y_ValidEstComb, valid_data(:,end), [], 'Combined for forecast data'); % Combined
+    DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(1).data, valid_data(:,end), [], 'k-means for forecast data'); % k-means
+    DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(2).data, valid_data(:,end), [], 'fitnet ANN for forecast data'); % NN       
+    % for debugging --------------------------------------------------------------------- 
 
 end

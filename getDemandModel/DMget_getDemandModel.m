@@ -10,7 +10,7 @@
 %     The output of the function is "ResultData.csv"
 % ----------------------------------------------------------------------------
 
-function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
+function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData)
     tic;
  
     %% Input errors check and Load data
@@ -22,7 +22,8 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     else
         short_past_load = csvread(shortTermPastData,1,0);
         predictors = csvread(ForecastData,1,0);
-        Resultfile = ResultData;    
+        Resultfile = ResultData;
+        forecast_days = size(predictors,1)/96;  % The number of forecasted days  in this process
     end       
     
     %% Get file path of csv data
@@ -65,15 +66,16 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     predicted_load(2).data = DMget_fitnet_ANN(op_flag, predictors, short_past_load, filepath);   
 
     %% Prediction result
+    % Define the number of individual forecasting algorithms (k-means, ANN ...)
+    n_algotirhms = size(coeff(1).data,1); 
+    % Combine individual algorithms into one deterministic forecasting result
+    yDetermPred = zeros(96, forecast_days); % define the matrix in advance
     for hour = 1:24
-        for i = 1:size(coeff(1).data,1) % the number of prediction methods(k-means and fitnet)
-            if i == 1
-                yDetermPred(1+(hour-1)*4:hour*4,:) = coeff(hour).data(i).*predicted_load(i).data(1+(hour-1)*4:hour*4);
-            else
-                yDetermPred(1+(hour-1)*4:hour*4,:) = yDetermPred(1+(hour-1)*4:hour*4,:) + coeff(hour).data(i).*predicted_load(i).data(1+(hour-1)*4:hour*4);  
-            end
+        for i = 1: n_algotirhms
+            yDetermPred(1+(hour-1)*4:hour*4,:) = yDetermPred(1+(hour-1)*4:hour*4,:) + ...
+                                                                              coeff(hour).data(i).*predicted_load(i).data(1+(hour-1)*4:hour*4);  
         end
-    end    
+    end  
     %% Generate Result file    
     % Headers for output file
     hedder = {'BuildingIndex', 'Year', 'Month', 'Day', 'Hour', 'Quarter', 'DemandMean', 'CIMin', 'CIMax', 'CILevel', 'pmfStartIndx', 'pmfStep', ...
@@ -112,29 +114,29 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     fprintf(fid,['%d,', '%4d,', '%02d,', '%02d,', '%02d,', '%d,', '%f,', '%f,', '%f,', '%02d,', repmat('%f,',1,12) '\n'], result');
     fclose(fid);
     
-%     % for debugging --------------------------------------------------------
-%     observed = csvread('TargetData.csv');
-%     % observed = nan(size(y_mean,1), 1);
-%     boundaries =  [PImin, PImax];
-%     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
-%     DMget_graph_desc(1:size(predictors,1), predicted_load(1).data, observed, [], 'k-means for forecast data', ci_percentage); % k-means
-%     DMget_graph_desc(1:size(predictors,1), predicted_load(2).data, observed, [], 'fitnet ANN for forecast data', ci_percentage); % NN
-%     % Cover Rate of PI
-%     count = 0;
-%     for i = 1:size(observed,1)
-%         if (PImin(i)<=observed(i)) && (observed(i)<=PImax(i))
-%             count = count+1;
-%         end
-%     end
-%     PICoverRate = 100*count/size(observed,1);
-%     MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
-%     MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
-%     MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
-%     disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
-%     disp(['MAPE of assembled model: ', num2str(MAPE(1)), '[%]'])
-%     disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
-%     disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
-%     % for debugging --------------------------------------------------------------------- 
+    % for debugging --------------------------------------------------------
+    observed = csvread('TargetData.csv');
+    % observed = nan(size(y_mean,1), 1);
+    boundaries =  [PImin, PImax];
+    DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
+    DMget_graph_desc(1:size(predictors,1), predicted_load(1).data, observed, [], 'k-means for forecast data', ci_percentage); % k-means
+    DMget_graph_desc(1:size(predictors,1), predicted_load(2).data, observed, [], 'fitnet ANN for forecast data', ci_percentage); % NN
+    % Cover Rate of PI
+    count = 0;
+    for i = 1:size(observed,1)
+        if (PImin(i)<=observed(i)) && (observed(i)<=PImax(i))
+            count = count+1;
+        end
+    end
+    PICoverRate = 100*count/size(observed,1);
+    MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
+    MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
+    MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
+    disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
+    disp(['MAPE of assembled model: ', num2str(MAPE(1)), '[%]'])
+    disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
+    disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
+    % for debugging --------------------------------------------------------------------- 
 
     flag = 1;
     toc;

@@ -1,0 +1,9 @@
+Demand forecasting
+setDemand
+- Coefficients 24*2 -> coefficients are prepared on hourly basis
+- More validation days makes more calculation time
+  (30days takes 643 seconds with Intel i5-6600 CPU, 8GB memory)
+- More validation days serve more stable CI and better coefficients
+
+getDemand
+- We can predict only one day for now (96 time slots)
