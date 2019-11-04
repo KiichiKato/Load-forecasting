@@ -112,29 +112,29 @@ function flag = getDemandModel(shortTermPastData, ForecastData, ResultData)
     fprintf(fid,['%d,', '%4d,', '%02d,', '%02d,', '%02d,', '%d,', '%f,', '%f,', '%f,', '%02d,', repmat('%f,',1,12) '\n'], result');
     fclose(fid);
     
-    % for debugging --------------------------------------------------------
-    observed = csvread('TargetData.csv');
-    % observed = nan(size(y_mean,1), 1);
-    boundaries =  [PImin, PImax];
-    DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
-    DMget_graph_desc(1:size(predictors,1), predicted_load(1).data, observed, [], 'k-means for forecast data', ci_percentage); % k-means
-    DMget_graph_desc(1:size(predictors,1), predicted_load(2).data, observed, [], 'fitnet ANN for forecast data', ci_percentage); % NN
-    % Cover Rate of PI
-    count = 0;
-    for i = 1:size(observed,1)
-        if (PImin(i)<=observed(i)) && (observed(i)<=PImax(i))
-            count = count+1;
-        end
-    end
-    PICoverRate = 100*count/size(observed,1);
-    MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
-    MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
-    MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
-    disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
-    disp(['MAPE of demand mean: ', num2str(MAPE(1)), '[%]'])
-    disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
-    disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
-    % for debugging --------------------------------------------------------------------- 
+%     % for debugging --------------------------------------------------------
+%     observed = csvread('TargetData.csv');
+%     % observed = nan(size(y_mean,1), 1);
+%     boundaries =  [PImin, PImax];
+%     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
+%     DMget_graph_desc(1:size(predictors,1), predicted_load(1).data, observed, [], 'k-means for forecast data', ci_percentage); % k-means
+%     DMget_graph_desc(1:size(predictors,1), predicted_load(2).data, observed, [], 'fitnet ANN for forecast data', ci_percentage); % NN
+%     % Cover Rate of PI
+%     count = 0;
+%     for i = 1:size(observed,1)
+%         if (PImin(i)<=observed(i)) && (observed(i)<=PImax(i))
+%             count = count+1;
+%         end
+%     end
+%     PICoverRate = 100*count/size(observed,1);
+%     MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
+%     MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
+%     MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
+%     disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
+%     disp(['MAPE of assembled model: ', num2str(MAPE(1)), '[%]'])
+%     disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
+%     disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
+%     % for debugging --------------------------------------------------------------------- 
 
     flag = 1;
     toc;

@@ -24,8 +24,8 @@ function DMget_graph_desc(x, y_pred, y_true, boundaries, name, ci_percentage)
     end
    
     % Labels of the graph
-    xlabel('Time steps');
-    ylabel('Load [MW]');
+    xlabel('Time steps in a day');
+    ylabel('Load [W]');
     title(name);
 
 
