@@ -163,10 +163,10 @@ feature = 2:6;
         bias_detection_sign = bias_detection_sign * bias_detection(1,i);
     end
     
-    for delete_detection_i = 1:1:24
+    for delete_detection_i = 1:24
         bias_detection(isnan(bias_detection(1,delete_detection_i)),:) = [];
     end
-    
+
     % detect
     
     if bias_detection_sign > 0

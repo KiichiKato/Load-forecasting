@@ -62,6 +62,7 @@ feature = 2:6;
             test_1D_day_feature(i_forecast,:) = raw_ShortData(i_forecast,feature); % feature
 
             %# prediction
+            
             if raw_ShortData(i_forecast,4) == 1
                 result_cluster_idx(i_forecast,1) = nb_holiday.predict(test_1D_day_feature(i_forecast,:));
 
