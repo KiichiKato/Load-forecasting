@@ -128,14 +128,25 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
             count = count+1;
         end
     end
+    % calculate MAPE(Mean Absolute Percentage Error) 
     PICoverRate = 100*count/size(observed,1);
     MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
     MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
     MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
+   % calculate RMSE(Root Mean Square Error)
+   data_num=size(yDetermPred,1);
+    for i=1:data_num %SE=Square Error
+        SE(i,1)= (yDetermPred(i) - observed(i))^2;
+        SE(i,2)= (predicted_load(1).data(i)-observed(i))^2;
+        SE(i,3)= (predicted_load(2).data(i)-observed(i))^2;
+    end
+    RMSE(1)=sqrt(sum(SE(:,1))/96);
+    RMSE(2)=sqrt(sum(SE(:,2))/96);
+    RMSE(3)=sqrt(sum(SE(:,3))/96);
     disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
-    disp(['MAPE of assembled model: ', num2str(MAPE(1)), '[%]'])
-    disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
-    disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])    
+    disp(['MAPE of combine model: ', num2str(MAPE(1)),'[%]','    RMSE of combine model: ', num2str(RMSE(1))])
+    disp(['MAPE of kmeans: ', num2str(MAPE(2)),'[%]','           RMSE of kmeans: ', num2str(RMSE(2))])
+    disp(['MAPE of ANN: ', num2str(MAPE(3)),'[%]','              RMSE of ANN: ', num2str(RMSE(3))])
     % for debugging --------------------------------------------------------------------- 
 
     flag = 1;
