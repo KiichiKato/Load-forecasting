@@ -73,7 +73,7 @@ function flag = DMset_setDemandModel(LongTermPastData)
     % structure of err_distribution.data is as below:
     %   row=25hours(0~24 in "LongTermPastData"), columns=4quarters.
     %   For instance, "err_distribution(1,1).data" means 0am 0(first) quarter, which contains array like [e1,e2,e3....] 
-    for hour = 1:24
+    for hour = 1:25
         for quarter = 1:4
             err_distribution(hour,quarter).err(1) = NaN;            
         end
