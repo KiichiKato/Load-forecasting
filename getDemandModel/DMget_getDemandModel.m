@@ -115,7 +115,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('target_20180801KEPRI.csv');
+    observed = csvread('target_20180729KEPRI.csv');
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
