@@ -57,15 +57,11 @@ if flag == 1
     
     
     %% k-means, bayesian
-    
     % check again the size of new_version_PastData
-
     [m_new_format_PastData, ~] = size(new_format_PastData);
     
-   %% Train model
-
+    %% Train model
     % for train
-
     [PastData_holiday,PastData_weekend,PastData_week] = DMset_step_group(old_format_PastData);
 
     % check again the size of raw_PastData because of delete
@@ -74,93 +70,67 @@ if flag == 1
     [m_week_check, ~] = size(PastData_week);
 
     % k-means
-
     % PastData k-means K value
-
-    [m_old_format_PastData, ~] = size(old_format_PastData);
-    
+    [m_old_format_PastData, ~] = size(old_format_PastData);    
     if (m_old_format_PastData) <= 7
-
         k_holiday = 1;
         k_weekend = 1;
         k_week = 2;
-
         % k-means past data index
-
         [idx_PastData_holiday,c_PastData_holiday] = kmeans(PastData_holiday(:,7:102),k_holiday);
         [idx_PastData_weekend,c_PastData_weekend] = kmeans(PastData_weekend(:,7:102),k_weekend);
         [idx_PastData_week,c_PastData_week] = kmeans(PastData_week(:,7:102),k_week);
-
         % bayesian
-
         %# lets split into training/testing
-
         % feature
         train_feature_holiday = PastData_holiday(1:end,feature); 
         train_feature_weekend = PastData_weekend(1:end,feature);
         train_feature_week = PastData_week(1:end,feature);
-
         % class index
         train_label_holiday = idx_PastData_holiday(1:end,1); 
         train_label_weekend = idx_PastData_weekend(1:end,1);
         train_label_week = idx_PastData_week(1:end,1);
-
         %# train model
         nb_holiday = fitcnb(train_feature_holiday,train_label_holiday,'Distribution','kernel');
         nb_weekend = fitcnb(train_feature_weekend,train_label_weekend,'Distribution','kernel');
         nb_week = fitcnb(train_feature_week,train_label_week,'Distribution','kernel');
-
-
     elseif (7 < (m_old_format_PastData)) & ((m_old_format_PastData) <= 30)
-
         k_holiday = 1;
         k_weekend = 2;
-%         k_week = 2;
-        
+        %         k_week = 2;
         % k-means past data index
-
         [idx_PastData_holiday,c_PastData_holiday] = kmeans(PastData_holiday(:,7:102),k_holiday);
         [idx_PastData_weekend,c_PastData_weekend] = kmeans(PastData_weekend(:,7:102),k_weekend);
         [idx_PastData_week,c_PastData_week] = kmeans(PastData_week(:,7:102),abs(round(mean(log10(var(PastData_week(:,7:7+23)))))));
-%         [idx_PastData_week,c_PastData_week] = kmeans(PastData_week(:,7:102),k_week);
-
+        %         [idx_PastData_week,c_PastData_week] = kmeans(PastData_week(:,7:102),k_week);
         % bayesian
-
         %# lets split into training/testing
-
         % feature
         train_feature_holiday = PastData_holiday(1:end,feature); 
         train_feature_weekend = PastData_weekend(1:end,feature);
         train_feature_week = PastData_week(1:end,feature);
-
         % class index
         train_label_holiday = idx_PastData_holiday(1:end,1); 
         train_label_weekend = idx_PastData_weekend(1:end,1);
         train_label_week = idx_PastData_week(1:end,1);
-
         %# train model
         nb_holiday = fitcnb(train_feature_holiday,train_label_holiday,'Distribution','kernel');
         nb_weekend = fitcnb(train_feature_weekend,train_label_weekend,'Distribution','kernel');
-        nb_week = fitcnb(train_feature_week,train_label_week,'Distribution','kernel');
-        
+        nb_week = fitcnb(train_feature_week,train_label_week,'Distribution','kernel');        
     else
-        
     end
         
     for i_loop = 1:1:3
         if (m_old_format_PastData) >= 31
-
             % choose k
             if abs(var(PastData_week(:,7:102))) < 10
                 if var(abs(var(PastData_week(:,7:102)))) < 0.5
-                    kkk_start = abs(round(var(PastData_week(:,7:102))));
-                    kkk_stop = abs(round(var(PastData_week(:,7:102)))); + 1;
+                    kkk_start = max(abs(mean(round(var(PastData_week(:,7:102))))), 1);
+                    kkk_stop = kkk_start + 1;
                 else
                     kkk_start = 5;
                     kkk_stop = 12;
-                end
-                
-
+                end               
             else
                 if var(abs(log10(var(PastData_week(:,7:102))))) < 0.5
                     kkk_start = abs(round(mean(log10(var(PastData_week(:,7:102)))))) - 1;
@@ -175,117 +145,78 @@ if flag == 1
             end
             
             result_MAPE = zeros(kkk_stop,1);
-            
             for kkk = kkk_start:1:kkk_stop
-                
             % old version format
-
             % PastData
             % 100% : total
             raw_100_PastData = old_format_PastData;
             [m_raw_100_PastData, ~] = size(raw_100_PastData);
-
             m_raw_70_PastData = round(m_raw_100_PastData * 0.7);
             m_raw_30_PastData = m_raw_100_PastData - m_raw_70_PastData;
-
             % 70% : train, 30% : validate
             raw_70_PastData = raw_100_PastData(1:m_raw_70_PastData,:);
             raw_30_PastData = raw_100_PastData(m_raw_70_PastData+1:end,:);
-
-
             % step_group
             [PastData_holiday,PastData_weekend,PastData_week] = DMset_step_group(raw_70_PastData);
-
             % check again the size of raw_PastData because of delete
             [m_holiday_check, ~] = size(PastData_holiday);
             [m_weekend_check, ~] = size(PastData_weekend);
             [m_week_check, ~] = size(PastData_week);
-
             k_holiday = 1;
             k_weekend = kkk;
-
             % k-means past data index
-
             [idx_PastData_holiday,c_PastData_holiday] = kmeans(PastData_holiday(:,7:102),k_holiday);
-
             idx_PastData_holiday_array{k_holiday} = idx_PastData_holiday;
             c_PastData_holiday_array{k_holiday} = c_PastData_holiday;
-
+            % 6/25/2020 Koda added here to avoid error -------------------------------------
+            if size(PastData_weekend(:,7:102), 1) < k_weekend
+                k_weekend = size(PastData_weekend(:,7:102), 1);
+            end
+            % ----------------------------------------------------------------------------------
             [idx_PastData_weekend,c_PastData_weekend] = kmeans(PastData_weekend(:,7:102), k_weekend);
-
             idx_PastData_weekend_array{k_weekend} = idx_PastData_weekend;
             c_PastData_weekend_array{k_weekend} = c_PastData_weekend;
-
             [idx_PastData_week,c_PastData_week] = kmeans(PastData_week(:,7:102),kkk);
-
             idx_PastData_week_array{kkk} = idx_PastData_week;
             c_PastData_week_array{kkk} = c_PastData_week;
-
-
             % bayesian
-
             %# lets split into training/testing
-
             % feature
             train_feature_holiday = PastData_holiday(1:end,feature);
             train_feature_weekend = PastData_weekend(1:end,feature);
             train_feature_week = PastData_week(1:end,feature);
-
             % class index
             train_label_holiday = idx_PastData_holiday(1:end,1); 
             train_label_weekend = idx_PastData_weekend(1:end,1);
             train_label_week = idx_PastData_week(1:end,1);
-
             %# train model
             nb_holiday_array{1} = fitcnb(train_feature_holiday,train_label_holiday,'Distribution','kernel');
             nb_weekend_array{k_weekend} = fitcnb(train_feature_weekend,train_label_weekend,'Distribution','kernel');
             nb_week_array{kkk} = fitcnb(train_feature_week,train_label_week,'Distribution','kernel');
-
-
             %% Test(to make err data)
-
             % new -> old version format
-
             % ForecastData
             raw_ForecastData = raw_30_PastData;
-
             [m_raw_ForecastData, ~] = size(raw_30_PastData);
-
-
             % Clustering
             % for test
-
             result_cluster_idx = zeros(m_raw_ForecastData,1);
-
             result_cluster_1D_day = zeros(m_raw_ForecastData,96);
-
-
             for i = 1:1:m_raw_ForecastData
-
                 test_1D_day_feature(i,:) = raw_ForecastData(i,feature); % feature
-
-
                 %# prediction
                 if raw_ForecastData(i,4) == 1
                     result_cluster_idx(i,1) = nb_holiday_array{1}.predict(test_1D_day_feature(i,:));
-
                 elseif raw_ForecastData(i,4) == 3
                     result_cluster_idx(i,1) = nb_weekend_array{k_weekend}.predict(test_1D_day_feature(i,:));
-
                 elseif raw_ForecastData(i,4) == 5
                     result_cluster_idx(i,1) = nb_weekend_array{k_weekend}.predict(test_1D_day_feature(i,:));
-
                 elseif raw_ForecastData(i,4) == 2
                     result_cluster_idx(i,1) = nb_week_array{kkk}.predict(test_1D_day_feature(i,:));
-
                 elseif raw_ForecastData(i,4) == 4
                     result_cluster_idx(i,1) = nb_week_array{kkk}.predict(test_1D_day_feature(i,:));
-
                 else
-
                 end
-
-
                 % idx -> kW
 
 
@@ -345,17 +276,14 @@ if flag == 1
         %% Train again (to update optimal kkk model)
 
         k_holiday = 1;
-        k_weekend = kkk;
-
         % k-means past data index
-
-%         idx_PastData_holiday = idx_PastData_holiday_array{kkk};
         c_PastData_holiday_save = c_PastData_holiday_array{1};
-
-%         idx_PastData_weekend = idx_PastData_weekend_array{kkk};
-        c_PastData_weekend_save = c_PastData_weekend_array{k_weekend};
-
-%         idx_PastData_week = idx_PastData_week_array{kkk};
+        % 6/25/2020 Koda added here to avoid error -------------------------------------
+        if size(c_PastData_weekend_array, 2) < kkk
+            kkk = size(c_PastData_weekend_array, 2);
+        end
+        % ----------------------------------------------------------------------------------
+        c_PastData_weekend_save = c_PastData_weekend_array{kkk};
         c_PastData_week_save = c_PastData_week_array{1,kkk};
 
         % bayesian
