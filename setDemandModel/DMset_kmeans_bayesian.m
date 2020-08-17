@@ -5,7 +5,7 @@ function y = DMset_kmeans_bayesian(flag,input,shortTermPastData,path)
 
 feature = 2:6;
 
-if flag == 1
+if flag == 1    % tarining
 
     PastDataExcelFile = input; % matrix
 
@@ -519,7 +519,6 @@ else
         else
             new_version_ResultingData(i,11) = result_cluster_1D_day_final(j,(new_version_ForecastData(i,5)*4 + new_version_ForecastData(i,6)));
         end
-        
         if i == m_new_veresion_ForecastData
         else
             if (new_version_ForecastData(i,4) - new_version_ForecastData((i+1),4)) == 0
@@ -528,85 +527,6 @@ else
             end
         end
     end
-
-
-    %% err correction
-    % variance error correction
-    
-    building_num = num2str(ForecastExcelFile(2,1));
-        
-    Name = 'DM_err_correction_kmeans_bayesian_';
-    Name = strcat(Name,building_num,'.mat');
-    
-    y_err = DMset_err_correction_ANN(2,ForecastExcelFile,Name,path);
-
-    [m_y_err,~] = size(y_err);
-    
-    y_err_2 = zeros(m_y_err,1);
-    
-    for i = 1:2:(m_y_err-1)
-        y_err_2(i,1) = mean(y_err(i:i+1,1));
-        y_err_2(i+1,1) = mean(y_err(i:i+1,1));
-    end
-
-
-    y_demand = new_version_ResultingData(1:m_new_veresion_ForecastData,11);
-
-
-%     y_demand_with_1 = y_demand + y_err;
-    y_demand_with_2 = y_demand + y_err_2;
-
-    
-    % bias error correction
-    % err correction t_1 (short)
-    
-    % forecast err rate
-
-     if exist('shortTermPastData','var')
-         
-        y_err_rate = DMset_err_correction_t_1(shortTermPastData,path);
-
-        [m_new_veresion_ForecastData, ~]= size(new_version_ForecastData);
-
-        j = 1;
-
-        y_err_rate_result = zeros(m_new_veresion_ForecastData,1);
-    
-        count_1 = 1; % to count abs err rate bigger than 1
-        
-    for i = 1:1:m_new_veresion_ForecastData
-        if new_version_ForecastData(i,5)*4 == 0 & new_version_ForecastData(i,6) == 0
-            y_err_rate_result(i,1) = y_err_rate(1,96);
-        else
-            y_err_rate_result(i,1) = y_err_rate(1,(new_version_ForecastData(i,5)*4 + new_version_ForecastData(i,6)));
-        end
-
-        if abs(y_err_rate_result(i,1)) > 1
-            count_1 = count_1 + 1;
-        else
-        end
-        
-        if i == m_new_veresion_ForecastData
-        else
-            if (new_version_ForecastData(i,4) - new_version_ForecastData((i+1),4)) == 0
-            else
-                j = j + 1;
-            end
-        end
-    end
-    
-     y_demand_with_3 = y_demand ./ (1 - y_err_rate_result);
-    
-     if count_1 > 4
-         y = y_demand_with_2;
-     else
-        y = y_demand_with_3;
-     end
-
-     else
-         y = y_demand_with_2;
-     end
-     
 end
 
 % toc
