@@ -17,7 +17,7 @@ function [predDemand] = Kmeans_Forecast(forecastData, path)
     %% Read inpudata
     building_num =mat2str(table2array(forecastData(2,1))); % distribute with building number 
     % Load mat files
-    load_name = '\demand_Model_';
+    load_name = '\DM_trainedKmeans_';
     load_name = strcat(path,load_name,building_num,'.mat');
     load(load_name,'-mat');    
 

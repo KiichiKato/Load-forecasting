@@ -42,7 +42,7 @@ function Kmeans_Training(input, colPredictors, path)
     % c_EnergyTrans: centroid for each cluster. The number of these values must correspond with k_EnergyTrans
     % c_SOC: centroid for each cluster
     building_num =mat2str(table2array(input(2,1))); % building number is necessary to be distinguished from other builiding mat files  
-    save_name = '\demand_Model_';
+    save_name = '\DM_trainedKmeans_';
     save_name = strcat(path,save_name,building_num,'.mat');     
     save(save_name,'nb_PastData','idx_PastData','K','c_PastData');
         

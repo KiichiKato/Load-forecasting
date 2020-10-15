@@ -28,12 +28,14 @@ function flag = DMset_setDemandModel(LongTermPastData)
     filepath = fileparts(LongTermPastData); 
     
     %% parameters
-    ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
+    ValidDays = 3; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
+    past_load=past_load(end-(96*ValidDays-1):end,:);
 
     %% Devide the data into training and validation
     valid_data = table2array(past_load(end-n_valid_data+1:end, 1:end));
     train_data = past_load(1:end-n_valid_data, 1:end);
+    valid_predictors = table2array(past_load(end-n_valid_data+1:end, 1:end-1));
     
     %% Train each model using past load data
     % Note: 0 means not true. If this function got the past data, model have to be trained
@@ -42,8 +44,7 @@ function flag = DMset_setDemandModel(LongTermPastData)
     
     %% Validate the performance of each model
     validData_Kmeans = Kmeans_Forecast(PastPredictors, filepath);
-    validData_ANN = neuralNet_Forecast(PastPredictors, filepath);
-
+    validData_ANN = neuralNet_Forecast(PastPredictors, filepath);    
     
     %% 学習データを96*ValidDaysの形に変更する。
     validData_Kmeans = validData_Kmeans(end-(96*ValidDays-1):end,1);
@@ -72,7 +73,26 @@ function flag = DMset_setDemandModel(LongTermPastData)
     for day = 1:ValidDays        
         y_ValidEstComb(1+(day-1)*96:day*96, 1) = y_est(:, day);
     end    
-
+    % Get error from validation data: absolute error, hours, Quaters
+    err = [y_ValidEstComb - valid_data(:, end) valid_predictors(:,5) valid_predictors(:,6)]; 
+    % Initialize the structure for error distribution
+    % structure of err_distribution.data is as below:
+    %   row=25hours(0~24 in "LongTermPastData"), columns=4quarters.
+    %   For instance, "err_distribution(1,1).data" means 0am 0(first) quarter, which contains array like [e1,e2,e3....] 
+    for hour = 1:25
+        for quarter = 1:4
+            err_distribution(hour,quarter).err(1) = NaN;            
+        end
+    end
+    % build the error distibution
+    for k = 1:size(err,1)
+        if isnan(err_distribution(err(k,2)+1, err(k,3)+1).err(1)) == 1
+            err_distribution(err(k,2)+1, err(k,3)+1).err(1) = err(k,1);
+        else
+            err_distribution(err(k,2)+1, err(k,3)+1).err(end+1) = err(k,1);
+        end
+    end   
+    
     
     %% Save .mat files
     past_load_array=table2array(past_load);
@@ -84,9 +104,10 @@ function flag = DMset_setDemandModel(LongTermPastData)
     varX(1).value = 'coeff';
     varX(2).value = 'err_distribution';
     extention='.mat';
-    matname = fullfile(filepath, [name(1).string extention]);
-    save(matname, varX(1).value);      
-    
+    for i = 1:size(varX,2)
+        matname = fullfile(filepath, [name(i).string extention]);
+        save(matname, varX(i).value);
+    end   
     % If the process properly works, give back flag as 1  
     flag = 1;    
     toc;
