@@ -1,4 +1,4 @@
 clear all;
 clc;
 close all;
-y_pred = DMset_setDemandModel([pwd, '\','DLT_20180728KEPRI coppy.csv'])
+y_pred = DMset_setDemandModel([pwd, '\','LongTermPastData2.csv'])

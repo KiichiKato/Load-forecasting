@@ -28,7 +28,7 @@ function flag = DMset_setDemandModel(LongTermPastData)
     filepath = fileparts(LongTermPastData); 
     
     %% parameters
-    ValidDays = 3; % it must be above 1 day. 3days might provide the best performance
+    ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
     past_load=past_load(end-(96*ValidDays-1):end,:);
 

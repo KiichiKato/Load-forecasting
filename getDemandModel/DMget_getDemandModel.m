@@ -93,7 +93,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     for i = 1:size(yDetermPred,1)
         hour = predictors(i,5)+1;   % hour 1~24
         quater = predictors(i,6)+1; % quater 1~4
-        prob_prediction(hour, quater).pred = yDetermPred(i);%+err_distribution(hour, quater).err;
+        prob_prediction(hour, quater).pred = yDetermPred(i)+err_distribution(hour, quater).err;
         prob_prediction(hour, quater).pred = max(prob_prediction(hour, quater).pred, 0);    % all elements must be bigger than zero
         % When the validation date is for only one day, generate duplicated records for mean function
         if size(prob_prediction(hour, quater).pred, 2) == 1
@@ -116,7 +116,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('target_20180731KEPRI.csv');
+    observed = csvread('TargetData.csv');
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
