@@ -18,7 +18,10 @@ function flag = DMset_setDemandModel(LongTermPastData)
         disp(errMessage)
         return
     else  % if the fine name is null
-        past_load = csvread(LongTermPastData,1,0);
+        past_load = readtable(LongTermPastData);
+        colPredictors = {'BuildingIndex' 'Year' 'Month' 'Day' 'Hour' 'Quarter' 'DayOfWeek' 'Holiday' 'HighestTemp' 'Weather'};
+        PastPredictors=past_load(:, colPredictors);
+
     end    
     
     %% Get file path of csv data
@@ -27,33 +30,36 @@ function flag = DMset_setDemandModel(LongTermPastData)
     %% parameters
     ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
+    past_load=past_load(end-(96*ValidDays-1):end,:);
 
     %% Devide the data into training and validation
-    valid_data = past_load(end-n_valid_data+1:end, 1:end);
+    valid_data = table2array(past_load(end-n_valid_data+1:end, 1:end));
     train_data = past_load(1:end-n_valid_data, 1:end);
-    valid_predictors = past_load(end-n_valid_data+1:end, 1:end-1);
+    valid_predictors = table2array(past_load(end-n_valid_data+1:end, 1:end-1));
     
     %% Train each model using past load data
     % Note: 0 means not true. If this function got the past data, model have to be trained
-    op_flag = 1; % 1: training mode
-    shortPast = past_load(end-7*96+1:end, :);
-    DMset_kmeans_bayesian(op_flag, past_load, shortPast, filepath);
-    DMset_fitnet_ANN(op_flag, past_load, shortPast, filepath);
+    Kmeans_Training(past_load, colPredictors, filepath);
+    neuralNet_Training(past_load, colPredictors, filepath);
     
     %% Validate the performance of each model
-    op_flag = 2; % 2: forecasting mode      
-    for day = 1:ValidDays
-        FistTimeInValid = size(train_data,1)+1+96*(day-1);  % Indicator of the time instance for validation data in past_load
-        short_past_load = past_load(FistTimeInValid-96*7:FistTimeInValid-1, 1:end); % size of short_past_load is always "672*11" for one week data set
-        valid_predictor = valid_predictors(1+(day-1)*96:day*96, 1:end);  % predictor for 1 day (96 data instances)
-        y_ValidEstIndv(1).data(:,day) = DMset_kmeans_bayesian(op_flag, valid_predictor, short_past_load, filepath);
-        y_ValidEstIndv(2).data(:,day) = DMset_fitnet_ANN(op_flag, valid_predictor, short_past_load, filepath);
+    validData_Kmeans = Kmeans_Forecast(PastPredictors, filepath);
+    validData_ANN = neuralNet_Forecast(PastPredictors, filepath);    
+    
+    %% 学習データを96*ValidDaysの形に変更する。
+    validData_Kmeans = validData_Kmeans(end-(96*ValidDays-1):end,1);
+    validData_ANN =validData_ANN(end-(96*ValidDays-1):end,1);
+    for i=1:ValidDays
+        y_ValidEstIndv(1).data(1:96,i)=validData_Kmeans(96*(i-1)+1:96*i,1);
+        y_ValidEstIndv(2).data(1:96,i)=validData_ANN(96*(i-1)+1:96*i,1);
     end
+    
     %% Optimize the coefficients for the additive model
     coeff = DMset_pso_main(y_ValidEstIndv, valid_data(:,end)); 
-    % Get the number of individual forecasting algorithms (kmeans, ANN....)
+     % Get the number of individual forecasting algorithms (kmeans, ANN....)
     n_algorithms = size(coeff(1).data,1);
-    
+
+ 
     %% Generate probability interval using validation result
     % Arrange an empty matrix 'y_est' in advane
     y_est = zeros(96, ValidDays);
@@ -87,10 +93,12 @@ function flag = DMset_setDemandModel(LongTermPastData)
         end
     end   
     
+    
     %% Save .mat files
+    past_load_array=table2array(past_load);
     s1 = 'DM_pso_coeff_';
     s2 = 'DM_err_distribution_';
-    s3 = num2str(past_load(1,1)); % Get building index
+    s3 = num2str(past_load_array(1,1)); % Get building index
     name(1).string = strcat(s1,s3);
     name(2).string = strcat(s2,s3);
     varX(1).value = 'coeff';
@@ -99,8 +107,7 @@ function flag = DMset_setDemandModel(LongTermPastData)
     for i = 1:size(varX,2)
         matname = fullfile(filepath, [name(i).string extention]);
         save(matname, varX(i).value);
-    end        
-    
+    end   
     % If the process properly works, give back flag as 1  
     flag = 1;    
     toc;
