@@ -10,7 +10,7 @@
 %     The output of the function is "ResultData.csv"
 % ----------------------------------------------------------------------------
 
-function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData)
+function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData,TargetData)
     tic;
  
     %% Input errors check and Load data
@@ -116,7 +116,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('TargetData.csv');
+    observed = csvread(TargetData);
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
