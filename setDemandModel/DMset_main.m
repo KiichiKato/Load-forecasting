@@ -1,4 +1,5 @@
 clear all;
 clc;
 close all;
-y_pred = DMset_setDemandModel([pwd, '\','LongTermPastData2.csv'])
+%DMset_setDemandModel(学習に用いるcsvファイル,学習する日数)
+y_pred = DMset_setDemandModel([pwd, '\','LongTermPastData3.csv'],30)

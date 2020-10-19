@@ -1,4 +1,4 @@
-function [predDemand] = neuralNet_Forecast(input, path)
+function [predDemand] = DMset_NeuralNet_Forecast(input, path)
 
     % Display for user
     disp('Validating the Neural Network model....');

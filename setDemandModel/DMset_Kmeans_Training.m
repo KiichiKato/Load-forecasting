@@ -1,4 +1,4 @@
-function Kmeans_Training(input, colPredictors, path)
+function DMset_Kmeans_Training(input, colPredictors, path)
 
     %% Read inpudata
     %     train_data = LongTermpastData(~any(isnan(LongTermpastData),2),:); % Eliminate NaN from inputdata
@@ -23,7 +23,7 @@ function Kmeans_Training(input, colPredictors, path)
     Demand = input.Demand; % All of "Demand"    
     
     % Set K using GapEvaluation
-    eva_Demand = evalclusters(Demand,'kmeans','gap','KList',[1:10]); %Kの数を求める
+    eva_Demand = evalclusters(Demand,'kmeans','gap','B',100,'KList',[1:20]);%,'ReferenceDistribution','uniform','SearchMethod','firstMaxSE'); %Kの数を求める
     K=eva_Demand.OptimalK; %evalclustersで求めたKの値
     
     % Train k-means clustering

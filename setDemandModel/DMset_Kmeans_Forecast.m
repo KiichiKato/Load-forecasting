@@ -1,4 +1,4 @@
-function [predDemand] = Kmeans_Forecast(forecastData, path)  
+function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)  
        
     %% Format error check (to be modified)
 %     % Check if the number of columns is the 10

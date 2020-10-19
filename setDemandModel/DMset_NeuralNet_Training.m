@@ -1,4 +1,4 @@
-function neuralNet_Training(input, colPredictors, path)
+function DMset_NeuralNet_Training(input, colPredictors, path)
     % Display for user
     disp('Training the neraul network model....');
 
