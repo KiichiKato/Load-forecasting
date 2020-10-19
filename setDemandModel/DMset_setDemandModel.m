@@ -48,6 +48,7 @@ function flag = DMset_setDemandModel(LongTermPastData)
         valid_predictor = valid_predictors(1+(day-1)*96:day*96, 1:end);  % predictor for 1 day (96 data instances)
         y_ValidEstIndv(1).data(:,day) = DMset_kmeans_bayesian(op_flag, valid_predictor, short_past_load, filepath);
         y_ValidEstIndv(2).data(:,day) = DMset_fitnet_ANN(op_flag, valid_predictor, short_past_load, filepath);
+        
     end
     %% Optimize the coefficients for the additive model
     coeff = DMset_pso_main(y_ValidEstIndv, valid_data(:,end)); 
