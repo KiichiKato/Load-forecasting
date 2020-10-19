@@ -20,23 +20,23 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
         disp(errMessage)
         return
     else
-        short_past_load = csvread(shortTermPastData,1,0);
-        predictors = csvread(ForecastData,1,0);
+        short_past_load = readtable(shortTermPastData);
+        predictors = readtable(ForecastData);
         Resultfile = ResultData;
         forecast_days = size(predictors,1)/96;  % The number of forecasted days  in this process
     end       
     
     %% Get file path of csv data
     filepath = fileparts(shortTermPastData);
-    buildingIndex = short_past_load(1,1);
+    buildingIndex = short_past_load.BuildingIndex(1);
     
     %% Error recognition: Check mat files exist
-    name1 = [filepath, '\', 'demand_Model_', num2str(buildingIndex), '.mat'];
-    name2 = [filepath, '\', 'DM_err_correction_kmeans_bayesian_', num2str(buildingIndex), '.mat'];
+    name1 = [filepath, '\', 'DM_trainedKmeans_', num2str(buildingIndex), '.mat'];
+    name2 = [filepath, '\', 'DM_trainedNeuralNet_', num2str(buildingIndex), '.mat'];
     name3 = [filepath, '\', 'DM_err_distribution_', num2str(buildingIndex), '.mat'];
-    name4 = [filepath, '\', 'DM_fitnet_ANN_', num2str(buildingIndex), '.mat'];
-    name5 = [filepath, '\', 'DM_pso_coeff_', num2str(buildingIndex), '.mat'];
-    if exist(name1) == 0 || exist(name2) == 0 || exist(name3) == 0 || exist(name4) == 0 || exist(name5) == 0
+    name4 = [filepath, '\', 'DM_pso_coeff_', num2str(buildingIndex), '.mat'];    
+    %name5 = [filepath, '\', 'demand_Model_', num2str(buildingIndex), '.mat'];
+    if exist(name1) == 0 || exist(name2) == 0 || exist(name3) == 0 || exist(name4) == 0 %|| exist(name5) == 0
         flag = -1;
         errMessage = 'ERROR: .mat files is not found (or the building index is not consistent in "demandModelDev" and "demandForecst" phase)';
         disp(errMessage)
@@ -62,8 +62,8 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     ci_percentage = 0.05; % 0.05 = 95% it must be between 0 to 1      
     
     %% Prediction for test data
-    predicted_load(1).data = DMget_kmeans_bayesian(op_flag, predictors, short_past_load, filepath);
-    predicted_load(2).data = DMget_fitnet_ANN(op_flag, predictors, short_past_load, filepath);   
+    predicted_load(1).data  = KmeansDM_Forecast(predictors, filepath);
+    predicted_load(2).data = NeuralNetDM_Forecast(predictors, filepath);  
 
     %% Prediction result
     % Define the number of individual forecasting algorithms (k-means, ANN ...)
@@ -89,6 +89,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     % Note: "err_distribution.err" ->  error value
     %           "err_distribution.pred" -> prediction value (err + deterministic prediction)
     % err_distribution
+    predictors=table2array(predictors);
     for i = 1:size(yDetermPred,1)
         hour = predictors(i,5)+1;   % hour 1~24
         quater = predictors(i,6)+1; % quater 1~4
@@ -115,7 +116,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('target_20180729KEPRI.csv');
+    observed = csvread('TargetData.csv');
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
