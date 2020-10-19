@@ -33,6 +33,7 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
    
     
     %% 予測する曜日の指定
+<<<<<<< HEAD
     %if past_load.DayOfWeek(end)==1||2||3||4||7
     %    past_load=past_load(past_load.DayOfWeek <=5,:);
     %    WeekdayData=past_load.Holiday == 4;
@@ -40,6 +41,15 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     %else
     %    past_load=past_load(past_load.DayOfWeek >=6,:);
     %end
+=======
+    if past_load.DayOfWeek(end)==1||2||3||4||7
+        past_load=past_load(past_load.DayOfWeek <=5,:);
+        WeekdayData=past_load.Holiday == 4;
+        past_load=past_load(WeekdayData,:);
+    else
+        past_load=past_load(past_load.DayOfWeek >=6,:);
+    end
+>>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e
 
     %% Devide the data into training and validation
     past_load=past_load(end-(96*ValidDays-1):end,:);
