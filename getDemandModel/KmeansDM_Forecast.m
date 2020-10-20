@@ -1,4 +1,8 @@
+<<<<<<< HEAD:setDemandModel/DMset_Kmeans_Forecast.m
+function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)  
+=======
 function [predDemand] = KmeansDM_Forecast(forecastData, path)  
+>>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e:getDemandModel/KmeansDM_Forecast.m
        
     %% Format error check (to be modified)
 %     % Check if the number of columns is the 10

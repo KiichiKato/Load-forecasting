@@ -1,4 +1,8 @@
+<<<<<<< HEAD:setDemandModel/DMset_NeuralNet_Forecast.m
+function [predDemand] = DMset_NeuralNet_Forecast(input, path)
+=======
 function [predDemand] = NeuralNetDM_Forecast(input, path)
+>>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e:getDemandModel/NeuralNetDM_Forecast.m
 
     % Display for user
     disp('Validating the Neural Network model....');
