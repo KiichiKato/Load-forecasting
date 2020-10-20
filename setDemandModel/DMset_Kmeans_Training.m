@@ -21,6 +21,7 @@ function DMset_Kmeans_Training(input, colPredictors, path)
     AllOfPredictors= input(:,colPredictors); %colPredictors('BuildingIndex' 'Year' 'Month' 'Day' 'Hour' 'Quarter' 'DayOfWeek' 'Holiday' 'HighestTemp' 'Weather')のデータ
 
     Demand = input.Demand; % All of "Demand"    
+    %Demand = normalize(Demand);
     
     % Set K using GapEvaluation
     eva_Demand = evalclusters(Demand,'kmeans','gap','B',100,'KList',[1:20]);%,'ReferenceDistribution','uniform','SearchMethod','firstMaxSE'); %Kの数を求める

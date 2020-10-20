@@ -1,4 +1,4 @@
-BuildingIndex,Year,Month,Day,Hour,Quarter,P1(DayOfWeek),P2(Holiday),P3(HighestTemp),P4(Weather)
+BuildingIndex,Year,Month,Day,Hour,Quarter,DayOfWeek,Holiday,HighestTemp,Weather
 1,2018,7,31,0,1,2,4,37.2,1
 1,2018,7,31,0,2,2,4,37.2,1
 1,2018,7,31,0,3,2,4,37.2,1
