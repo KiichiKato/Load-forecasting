@@ -1,4 +1,4 @@
-BuildingIndex,Year,Month,Day,Hour,Quarter,P1(DayOfWeek),P2(Holiday),P3(HighestTemp),P4(Weather),Demand
+BuildingIndex,Year,Month,Day,Hour,Quarter,DayOfWeek,Holiday,HighestTemp,Weather,Demand
 1,2019,1,1,0,0,1,1,-8.1,1,4152
 1,2019,1,1,0,1,2,1,-2.7,1,4164
 1,2019,1,1,0,2,2,1,-2.7,1,4144
