@@ -1,4 +1,4 @@
-BuildingIndex,Year,Month,Day,Hour,Quarter,P1(DayOfWeek),P2(Holiday),P3(HighestTemp),P4(Weather),Demand
+BuildingIndex,Year,Month,Day,Hour,Quarter,DayOfWeek,Holiday,HighestTemp,Weather,Demand
 1,2017,1,1,0,1,7,5,10.7,2,171.36
 1,2017,1,1,0,2,7,5,10.7,2,169.92
 1,2017,1,1,0,3,7,5,10.7,2,168.96
