@@ -55,7 +55,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     for i = 1:size(varX,2)
         matname = fullfile(filepath, [name(i).string extention]);
         load(matname);
-    end  
+    end
        
     %% parameters
     op_flag = 2; % 2: forecast mode(validation)
