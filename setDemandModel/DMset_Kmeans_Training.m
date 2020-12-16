@@ -19,19 +19,26 @@ function DMset_Kmeans_Training(input, colPredictors, path)
     % Extract appropriate data from inputdata for SOC prediction: pastSOC
     
     AllOfPredictors= input(:,colPredictors); %colPredictors('BuildingIndex' 'Year' 'Month' 'Day' 'Hour' 'Quarter' 'DayOfWeek' 'Holiday' 'HighestTemp' 'Weather')のデータ
-
-    Demand = input.Demand; % All of "Demand"    
+    
+    Predictors = { 'Hour' 'DayOfWeek' 'HighestTemp' 'Demand'};%{'Month' 'Day' 'Hour' 'Quarter' 'DayOfWeek' 'Holiday' 'HighestTemp' 'Weather' 'Demand'};
+    Demand = input.Demand;% All of "Demand"    
+    PredictDemand = table2array(input(:,Predictors));
     %Demand = normalize(Demand);
     
+    loop=5;
+   
     % Set K using GapEvaluation
-    eva_Demand = evalclusters(Demand,'kmeans','gap','B',100,'KList',[1:20]);%,'ReferenceDistribution','uniform','SearchMethod','firstMaxSE'); %Kの数を求める
-    K=eva_Demand.OptimalK; %evalclustersで求めたKの値
+    %eva_Demand = evalclusters(PredictDemand,'kmeans','gap','KList',[1:20]);%,'ReferenceDistribution','uniform','SearchMethod','firstMaxSE'); %Kの数を求める
+    %K=eva_Demand.OptimalK; %evalclustersで求めたKの値
+    K=50; 
     
+    for i=1:loop
     % Train k-means clustering
-    [idx_PastData, c_PastData] = kmeans(Demand,K);
+    [idx_PastData{i}, c_PastData{i}] = kmeans(Demand,K);
     
     % Train multiclass naive Bayes model
-    nb_PastData = fitcnb(AllOfPredictors, idx_PastData,'Distribution','kernel');
+    nb_PastData{i} = fitcnb(AllOfPredictors, idx_PastData{i},'Distribution','kernel');
+    end
         
     %% Save trained data in .mat files
     % idx_EnergyTrans: index for each Charge/Discharge records
@@ -45,7 +52,7 @@ function DMset_Kmeans_Training(input, colPredictors, path)
     building_num =mat2str(table2array(input(2,1))); % building number is necessary to be distinguished from other builiding mat files  
     save_name = '\DM_trainedKmeans_';
     save_name = strcat(path,save_name,building_num,'.mat');     
-    save(save_name,'nb_PastData','idx_PastData','K','c_PastData');
+    save(save_name,'nb_PastData','idx_PastData','K','c_PastData','loop','colPredictors');
         
     disp('Training the k-menas & Baysian model.... Done!');
 

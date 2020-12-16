@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD:setDemandModel/DMset_Kmeans_Forecast.m
 function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)  
-=======
-function [predDemand] = KmeansDM_Forecast(forecastData, path)  
->>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e:getDemandModel/KmeansDM_Forecast.m
-=======
-function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)  
->>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e
        
     %% Format error check (to be modified)
 %     % Check if the number of columns is the 10
@@ -31,18 +23,18 @@ function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)
 
     %% Prediction based on the Naive Bayes classification model
     % Energy Transition, SOC
-<<<<<<< HEAD
-
-=======
+    for i=1:loop
+        labelDemand = nb_PastData{i}.predict(forecastData);
+        KmeansDemand{i} = c_PastData{i}(labelDemand,:);    
+    end
     
->>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e
-    labelDemand = nb_PastData.predict(forecastData);
-    predDemand = c_PastData(labelDemand,:);    
+    predDemand=KmeansDemand{1};
     
+    for i=2:loop
+    predDemand=predDemand+KmeansDemand{i};
+    end
+    
+    predDemand=predDemand/loop;
     % Display for user    
     disp('Validating the k-menas & Baysian model.... Done!');
 end
-<<<<<<< HEAD
-
-=======
->>>>>>> 729eb1ba9871cf7cb707d87db4f5874b498e052e

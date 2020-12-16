@@ -19,13 +19,16 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
         return
     else  % if the fine name is null
         past_load = readtable(LongTermPastData);
-        colPredictors = {'BuildingIndex' 'Year' 'Month' 'Day' 'Hour' 'Quarter' 'DayOfWeek' 'Holiday' 'HighestTemp' 'Weather'};%
-        PastPredictors=past_load(:, colPredictors);
-
+        colPredictors = {'BuildingIndex' 'CyclicalMonthSin' 'CyclicalMonthCos' 'CyclicalWeekCos' 'CyclicalWeekSin' 'CyclicalDayCos' 'CyclicalDaySin' 'Holiday' 'HighestTemp' 'Weather'};%
+        % BuildingIndex	Year	Month	Day	Hour	Quarter	DayOfWeek	Holiday	HighestTemp	Weather	Demand
+           %'CyclicalMonthSin' 'CyclicalMonthCos' 'CyclicalWeekCos' 'CyclicalWeekSin' 'CyclicalDayCos' 'CyclicalDaySin' 
     end    
     
     %% Get file path of csv data
     filepath = fileparts(LongTermPastData); 
+    
+    %% ConvertTime
+    past_load=ConvertTime(past_load);
     
     %% parameters
     %ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
@@ -42,18 +45,28 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     %end
 
     %% Devide the data into training and validation
-    past_load=past_load(end-(96*ValidDays-1):end,:);
+    preyear_load=past_load(end-(333*96+96*ValidDays-1):end-(333*96),:);%
+    premanth_load=past_load(end-(96*ValidDays-1):end,:);%
+    past_load=cat(1,preyear_load,premanth_load);%
+    ValidDays=ValidDays*2;%
+    n_valid_data = 96*ValidDays;%
+    %past_load=past_load(end-(96*ValidDays-1):end,:);
+    
+    PastPredictors=past_load(:, colPredictors);
     valid_data = table2array(past_load(end-n_valid_data+1:end, 1:end));
+    a=valid_data(:,end);
     valid_predictors = table2array(past_load(end-n_valid_data+1:end, 1:end-1));
     
     %% Train each model using past load data
     % Note: 0 means not true. If this function got the past data, model have to be trained
     DMset_Kmeans_Training(past_load, colPredictors, filepath);
     DMset_NeuralNet_Training(past_load, colPredictors, filepath);
+    DMset_LSTM_Training(past_load, colPredictors, filepath)
     
     %% Validate the performance of each model
     validData_Kmeans = DMset_Kmeans_Forecast(PastPredictors, filepath);
-    validData_ANN = DMset_NeuralNet_Forecast(PastPredictors, filepath);    
+    validData_ANN = DMset_NeuralNet_Forecast(PastPredictors, filepath);
+    validData_LSTM=DMset_LSTM_Forecast(PastPredictors, filepath);
     
     %% 学習データを96*ValidDaysの形に変更する。
     validData_Kmeans = validData_Kmeans(end-(96*ValidDays-1):end,1);
@@ -61,8 +74,9 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     for i=1:ValidDays
         y_ValidEstIndv(1).data(1:96,i)=validData_Kmeans(96*(i-1)+1:96*i,1);
         y_ValidEstIndv(2).data(1:96,i)=validData_ANN(96*(i-1)+1:96*i,1);
+        y_ValidEstIndv(3).data(1:96,i)=validData_LSTM(1,96*(i-1)+1:96*i);
     end
-    
+        
     %% Optimize the coefficients for the additive model
     coeff = DMset_pso_main(y_ValidEstIndv, valid_data(:,end)); 
      % Get the number of individual forecasting algorithms (kmeans, ANN....)
@@ -130,12 +144,15 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     MAPE(1) = mean(abs(y_ValidEstComb - valid_data(:,end))*100./valid_data(:,end)); % combined
     MAPE(2) = mean(abs(predicted_load(1).data - valid_data(:,end))*100./valid_data(:,end)); % k-means
     MAPE(3) = mean(abs(predicted_load(2).data - valid_data(:,end))*100./valid_data(:,end)); % fitnet
+    MAPE(4) = mean(abs(predicted_load(3).data - valid_data(:,end))*100./valid_data(:,end)); % LSTM
     disp(['MAPE of demand mean: ', num2str(MAPE(1)), '[%]'])
     disp(['MAPE of kmeans: ', num2str(MAPE(2)), '[%]'])
     disp(['MAPE of fitnet: ', num2str(MAPE(3)), '[%]'])
+    disp(['MAPE of LSTM: ', num2str(MAPE(4)), '[%]'])
     DMset_demandGraph(1:size(y_ValidEstComb,1), y_ValidEstComb, valid_data(:,end), [], 'Combined for forecast data'); % Combined
     DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(1).data, valid_data(:,end), [], 'k-means for forecast data'); % k-means
     DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(2).data, valid_data(:,end), [], 'fitnet ANN for forecast data'); % NN       
+    DMset_demandGraph(1:size(y_ValidEstComb,1), predicted_load(3).data, valid_data(:,end), [], 'fitnet LSTM for forecast data'); % LSTM   
     % for debugging --------------------------------------------------------------------- 
 
 end
