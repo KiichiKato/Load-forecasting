@@ -10,7 +10,7 @@
 %     The output of the function is "ResultData.csv"
 % ----------------------------------------------------------------------------
 
-function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData)
+function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData,TargetData)
     tic;
  
     %% Input errors check and Load data
@@ -55,7 +55,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     for i = 1:size(varX,2)
         matname = fullfile(filepath, [name(i).string extention]);
         load(matname);
-    end  
+    end
        
     %% parameters
     op_flag = 2; % 2: forecast mode(validation)
@@ -95,9 +95,9 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
         quater = predictors(i,6)+1; % quater 1~4
         prob_prediction(hour, quater).pred = yDetermPred(i)+err_distribution(hour, quater).err;
         prob_prediction(hour, quater).pred = max(prob_prediction(hour, quater).pred, 0);    % all elements must be bigger than zero
-        % When the validation date is for only one day, generate duplicated records for mean function
-        if size(prob_prediction(hour, quater).pred, 2) == 1
-            prob_prediction(hour, quater).pred = [prob_prediction(hour, quater).pred prob_prediction(hour, quater).pred];
+        % When the validation date is for only one day, add non-error record to the prob_prediction
+         if size(prob_prediction(hour, quater).pred, 2) == 1
+            prob_prediction(hour, quater).pred = [yDetermPred(i) prob_prediction(hour, quater).pred];
         end
         % Get mean value of Probabilistic load prediction
         prob_prediction(hour, quater).mean = mean(prob_prediction(hour, quater).pred)';
@@ -116,7 +116,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     fclose(fid);
     
     % for debugging --------------------------------------------------------
-    observed = csvread('TargetData.csv');
+    observed = csvread(TargetData);
     % observed = nan(size(y_mean,1), 1);
     boundaries =  [PImin, PImax];
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined

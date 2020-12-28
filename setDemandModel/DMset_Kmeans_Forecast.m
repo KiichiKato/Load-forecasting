@@ -1,4 +1,4 @@
-function [predDemand] = Kmeans_Forecast(forecastData, path)  
+function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)  
        
     %% Format error check (to be modified)
 %     % Check if the number of columns is the 10
@@ -23,7 +23,6 @@ function [predDemand] = Kmeans_Forecast(forecastData, path)
 
     %% Prediction based on the Naive Bayes classification model
     % Energy Transition, SOC
-    
     labelDemand = nb_PastData.predict(forecastData);
     predDemand = c_PastData(labelDemand,:);    
     
