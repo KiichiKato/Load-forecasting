@@ -11,7 +11,7 @@
 function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     tic;    
     
-    %% Input errors check and Load data
+    %% Input errors check and Load data 
     if exist(LongTermPastData) == 0    % if the filename is not null
         flag = -1;  % return error
         errMessage = ['The follwing csv file is not found: ', LongTermPastData ];
@@ -20,8 +20,6 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     else  % if the fine name is null
         past_load = readtable(LongTermPastData);
         colPredictors = {'BuildingIndex' 'CyclicalMonthSin' 'CyclicalMonthCos' 'CyclicalWeekCos' 'CyclicalWeekSin' 'CyclicalDayCos' 'CyclicalDaySin' 'Holiday' 'HighestTemp' 'Weather'};%
-        % BuildingIndex	Year	Month	Day	Hour	Quarter	DayOfWeek	Holiday	HighestTemp	Weather	Demand
-           %'CyclicalMonthSin' 'CyclicalMonthCos' 'CyclicalWeekCos' 'CyclicalWeekSin' 'CyclicalDayCos' 'CyclicalDaySin' 
     end    
     
     %% Get file path of csv data
@@ -31,27 +29,18 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     past_load=ConvertTime(past_load);
     
     %% parameters
-    %ValidDays = 30; % it must be above 1 day. 3days might provide the best performance
     n_valid_data = 96*ValidDays;
    
+    %% Use data from a year ago
+    %preyear_load=past_load(end-(365*96+96*ValidDays-1):end-(365*96),:);%
+    %premanth_load=past_load(end-(96*ValidDays-1):end,:);%
+    %past_load=cat(1,preyear_load,premanth_load);%
+    %ValidDays=ValidDays*2;%
+    %n_valid_data = 96*ValidDays;%
     
-    %% 予測する曜日の指定
-    %if past_load.DayOfWeek(end)==1||2||3||4||7
-    %    past_load=past_load(past_load.DayOfWeek <=5,:);
-    %    WeekdayData=past_load.Holiday == 4;
-    %    past_load=past_load(WeekdayData,:);
-    %else
-    %    past_load=past_load(past_load.DayOfWeek >=6,:);
-    %end
-
+    past_load=past_load(end-(96*ValidDays-1):end,:); %Enable this when not use data from a years ago
+    
     %% Devide the data into training and validation
-    preyear_load=past_load(end-(333*96+96*ValidDays-1):end-(333*96),:);%
-    premanth_load=past_load(end-(96*ValidDays-1):end,:);%
-    past_load=cat(1,preyear_load,premanth_load);%
-    ValidDays=ValidDays*2;%
-    n_valid_data = 96*ValidDays;%
-    %past_load=past_load(end-(96*ValidDays-1):end,:);
-    
     PastPredictors=past_load(:, colPredictors);
     valid_data = table2array(past_load(end-n_valid_data+1:end, 1:end));
     a=valid_data(:,end);
@@ -68,7 +57,7 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     validData_ANN = DMset_NeuralNet_Forecast(PastPredictors, filepath);
     validData_LSTM=DMset_LSTM_Forecast(PastPredictors, filepath);
     
-    %% 学習データを96*ValidDaysの形に変更する。
+    %% Organize forecasting data
     validData_Kmeans = validData_Kmeans(end-(96*ValidDays-1):end,1);
     validData_ANN =validData_ANN(end-(96*ValidDays-1):end,1);
     for i=1:ValidDays
@@ -78,10 +67,12 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     end
         
     %% Optimize the coefficients for the additive model
-    coeff = DMset_pso_main(y_ValidEstIndv, valid_data(:,end)); 
+    weight = DMset_pso_main2(y_ValidEstIndv, valid_data(:,end)); 
      % Get the number of individual forecasting algorithms (kmeans, ANN....)
+    for hour = 1:24
+         coeff(hour).data(:,1) = weight(hour,:);
+    end
     n_algorithms = size(coeff(1).data,1);
-
  
     %% Generate probability interval using validation result
     % Arrange an empty matrix 'y_est' in advane
