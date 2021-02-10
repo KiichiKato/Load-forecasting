@@ -26,6 +26,10 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
         forecast_days = size(predictors,1)/96;  % The number of forecasted days  in this process
     end       
     
+    %% Convert Time for sin cos
+    short_past_load=ConvertTime(short_past_load,1);
+    predictors=ConvertTime2(predictors,2);
+    
     %% Get file path of csv data
     filepath = fileparts(shortTermPastData);
     buildingIndex = short_past_load.BuildingIndex(1);
@@ -33,10 +37,10 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     %% Error recognition: Check mat files exist
     name1 = [filepath, '\', 'DM_trainedKmeans_', num2str(buildingIndex), '.mat'];
     name2 = [filepath, '\', 'DM_trainedNeuralNet_', num2str(buildingIndex), '.mat'];
-    name3 = [filepath, '\', 'DM_err_distribution_', num2str(buildingIndex), '.mat'];
-    name4 = [filepath, '\', 'DM_pso_coeff_', num2str(buildingIndex), '.mat'];    
-    %name5 = [filepath, '\', 'demand_Model_', num2str(buildingIndex), '.mat'];
-    if exist(name1) == 0 || exist(name2) == 0 || exist(name3) == 0 || exist(name4) == 0 %|| exist(name5) == 0
+    name3 = [filepath, '\', 'DM_trainedNeuralNet_', num2str(buildingIndex), '.mat'];
+    name4 = [filepath, '\', 'DM_err_distribution_', num2str(buildingIndex), '.mat'];
+    name5 = [filepath, '\', 'DM_pso_coeff_', num2str(buildingIndex), '.mat'];    
+    if exist(name1) == 0 || exist(name2) == 0 || exist(name3) == 0 || exist(name4) == 0 || exist(name5) == 0
         flag = -1;
         errMessage = 'ERROR: .mat files is not found (or the building index is not consistent in "demandModelDev" and "demandForecst" phase)';
         disp(errMessage)
@@ -64,6 +68,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     %% Prediction for test data
     predicted_load(1).data  = KmeansDM_Forecast(predictors, filepath);
     predicted_load(2).data = NeuralNetDM_Forecast(predictors, filepath);  
+    predicted_load(3).data = LSTM_DM_Forecast(predictors, filepath).';  
 
     %% Prediction result
     % Define the number of individual forecasting algorithms (k-means, ANN ...)
@@ -122,6 +127,7 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     DMget_graph_desc(1:size(predictors,1), yDetermPred, observed, boundaries, 'Combined for forecast data', ci_percentage); % Combined
     DMget_graph_desc(1:size(predictors,1), predicted_load(1).data, observed, [], 'k-means for forecast data', ci_percentage); % k-means
     DMget_graph_desc(1:size(predictors,1), predicted_load(2).data, observed, [], 'fitnet ANN for forecast data', ci_percentage); % NN
+    DMget_graph_desc(1:size(predictors,1), predicted_load(3).data, observed, [], 'LSTM for forecast data', ci_percentage); % NN
     % Cover Rate of PI
     count = 0;
     for i = 1:size(observed,1)
@@ -134,20 +140,24 @@ function flag = DMget_getDemandModel(shortTermPastData, ForecastData, ResultData
     MAPE(1) = mean(abs(yDetermPred - observed)*100./observed); % combined
     MAPE(2) = mean(abs(predicted_load(1).data - observed)*100./observed); % k-means
     MAPE(3) = mean(abs(predicted_load(2).data - observed)*100./observed); % fitnet
+    MAPE(4) = mean(abs(predicted_load(3).data - observed)*100./observed); % LSTM
    % calculate RMSE(Root Mean Square Error)
    data_num=size(yDetermPred,1);
     for i=1:data_num %SE=Square Error
         SE(i,1)= (yDetermPred(i) - observed(i))^2;
         SE(i,2)= (predicted_load(1).data(i)-observed(i))^2;
         SE(i,3)= (predicted_load(2).data(i)-observed(i))^2;
+        SE(i,4)= (predicted_load(3).data(i)-observed(i))^2;
     end
     RMSE(1)=sqrt(sum(SE(:,1))/96);
     RMSE(2)=sqrt(sum(SE(:,2))/96);
     RMSE(3)=sqrt(sum(SE(:,3))/96);
+    RMSE(4)=sqrt(sum(SE(:,4))/96);
     disp(['PI cover rate is ',num2str(PICoverRate), '[%]/', num2str(100*(1-ci_percentage)), '[%]'])
     disp(['MAPE of combine model: ', num2str(MAPE(1)),'[%]','    RMSE of combine model: ', num2str(RMSE(1))])
     disp(['MAPE of kmeans: ', num2str(MAPE(2)),'[%]','           RMSE of kmeans: ', num2str(RMSE(2))])
     disp(['MAPE of ANN: ', num2str(MAPE(3)),'[%]','              RMSE of ANN: ', num2str(RMSE(3))])
+    disp(['MAPE of LSTM: ', num2str(MAPE(4)),'[%]','              RMSE of LSTM: ', num2str(RMSE(4))])
     % for debugging --------------------------------------------------------------------- 
 
     flag = 1;

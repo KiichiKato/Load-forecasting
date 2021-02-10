@@ -1,6 +1,8 @@
 function [predDemand] = NeuralNetDM_Forecast(input, path)
+
     % Display for user
     disp('Validating the Neural Network model....');
+
 
     %% Read Input data
     % get building number
@@ -11,6 +13,7 @@ function [predDemand] = NeuralNetDM_Forecast(input, path)
     load(load_name,'-mat');
 
     %% Forecast 
+    input=input(:, colPredictors);
     % use ANN 3 times for reduce ANN's error
     input = table2array(input);
     predDemand  = getAverageOfMultipleForecast(trainedNet, input);

@@ -23,9 +23,18 @@ function [predDemand] = DMset_Kmeans_Forecast(forecastData, path)
 
     %% Prediction based on the Naive Bayes classification model
     % Energy Transition, SOC
-    labelDemand = nb_PastData.predict(forecastData);
-    predDemand = c_PastData(labelDemand,:);    
+    for i=1:loop
+        labelDemand = nb_PastData{i}.predict(forecastData);
+        KmeansDemand{i} = c_PastData{i}(labelDemand,:);    
+    end
     
+    predDemand=KmeansDemand{1};
+    
+    for i=2:loop
+    predDemand=predDemand+KmeansDemand{i};
+    end
+    
+    predDemand=predDemand/loop;
     % Display for user    
     disp('Validating the k-menas & Baysian model.... Done!');
 end

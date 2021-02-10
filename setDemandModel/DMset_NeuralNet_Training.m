@@ -12,7 +12,7 @@ function DMset_NeuralNet_Training(input, colPredictors, path)
     save_name1 = '\DM_trainedNeuralNet_';
     save_fullPath = strcat(path,save_name1,building_num,'.mat');
     clearvars path;
-    save(save_fullPath, 'trainedNet');
+    save(save_fullPath, 'trainedNet','colPredictors');
     % Display for user
     disp('Training the neraul network model.... Done!');
 end
