@@ -1,6 +1,6 @@
 % y_ture: True load [MW]
 % y_predict: predicted load [MW]
-function coeff=DMset_pso_main2(y_predict, y_true)  
+function coeff=DMset_pso(y_predict, y_true)  
     % Initialization
     NumOfmethods = size(y_predict, 2); % the number of prediction methods (k-means and fitnet)
     days = size(y_predict(1).data,2);

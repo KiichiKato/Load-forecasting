@@ -76,7 +76,7 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     end
         
     %% Optimize the coefficients for the additive model
-    weight = DMset_pso_main2(y_ValidEstIndv, valid_data(:,end)); 
+    weight = DMset_pso(y_ValidEstIndv, valid_data(:,end)); 
      % Get the number of individual forecasting algorithms (kmeans, ANN....)
     for hour = 1:24
          coeff(hour).data(:,1) = weight(hour,:);
