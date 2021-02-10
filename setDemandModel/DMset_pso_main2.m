@@ -5,7 +5,7 @@ function coeff=DMset_pso_main2(y_predict, y_true)
     NumOfmethods = size(y_predict, 2); % the number of prediction methods (k-means and fitnet)
     days = size(y_predict(1).data,2);
     hours=size(y_true, 1)/days/4;
-    %% three method
+    %% three methods
     % Restructure the predicted data
     for j = 1:NumOfmethods
         for hour = 1:hours
@@ -39,18 +39,25 @@ function coeff=DMset_pso_main2(y_predict, y_true)
         options = optimoptions('particleswarm', 'MaxIterations',2000,'FunctionTolerance', 1e-25, 'MaxStallIterations', 1500,'Display', 'none');
         % Call PSO and get optimal weights for each hour
         [coeff(hour, :),~,~,~] = particleswarm(objFunc,nvars,lb,ub, options);   
-        sumofcoeff=sum(coeff(hour, :));
-        for j=1:3
-            coeff(hour, j)=coeff(hour, j)/sumofcoeff;
-        end
-        clear j;        
+%         sumofcoeff=sum(coeff(hour, :));
+%         for j=1:3
+%             coeff(hour, j)=coeff(hour, j)/sumofcoeff;
+%         end
+%         clear j;        
     end
 
 end
 
 function err1 = objectiveFunc(weight, forecast, target) % objective function
-    ensembleForecasted = sum(forecast.*weight, 2);  % add multiple methods
-    err1 = sum(abs(target - ensembleForecasted));
-    err2 = abs(1-sum(weight));
+    % constraint: summation of the weights need to be from 0.09 to 1.01
+    if abs(1 - sum(weight)) > 0.01
+        err1 = 10^8 + abs(1 - sum(weight));
+        err2 = 0;   % dummy value
+    else
+    % Minimize the error between forecasted and target    
+        ensembleForecasted = sum(forecast.*weight, 2);  % add multiple methods
+        err1 = sum(abs(target - ensembleForecasted));
+        err2 = abs(1-sum(weight));  % err2 makes the summation of the weight be close to 1
+    end
     total_err = err1+100*err2;
 end

@@ -1,7 +1,7 @@
 % ---------------------------------------------------------------------------
 % Load prediction: Model development algorithm 
-% 2018/07/19 Updated Daisuke Kodaira 
-% daisuke.kodaira03@gmail.com
+% Since 2018/07/19 
+% Daisuke Kodaira - daisuke.kodaira03@gmail.com
 % 
 % function flag = demandModeDev(LongTermPastData)
 %         flag =1 ; if operation is completed successfully
@@ -19,7 +19,16 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
         return
     else  % if the fine name is null
         past_load = readtable(LongTermPastData);
-        colPredictors = {'BuildingIndex' 'CyclicalMonthSin' 'CyclicalMonthCos' 'CyclicalWeekCos' 'CyclicalWeekSin' 'CyclicalDayCos' 'CyclicalDaySin' 'Holiday' 'HighestTemp' 'Weather'};%
+        colPredictors = {'BuildingIndex' ...
+                                   'CyclicalMonthSin' ...
+                                   'CyclicalMonthCos' ...
+                                   'CyclicalWeekCos' ...
+                                   'CyclicalWeekSin' ...
+                                   'CyclicalDayCos' ...
+                                   'CyclicalDaySin' ...
+                                   'Holiday'...
+                                   'HighestTemp' ...
+                                   'Weather'};
     end    
     
     %% Get file path of csv data
@@ -28,7 +37,7 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
     %% ConvertTime
     past_load=ConvertTime(past_load);
     
-    %% parameters
+    %% Parameter definition
     n_valid_data = 96*ValidDays;
    
     %% Use data from a year ago

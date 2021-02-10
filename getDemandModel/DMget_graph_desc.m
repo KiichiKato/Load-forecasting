@@ -20,13 +20,13 @@ function DMget_graph_desc(x, y_pred, y_true, boundaries, name, ci_percentage)
         plot(timestep,boundaries(:,1),'b--');
         plot(timestep,boundaries(:,2),'b--');
         CI = 100*(1-ci_percentage);
-        legend('predicted Load', 'True', [num2str(CI) '% Prediction Interval']);
+        legend('Predicted', 'Observed', [num2str(CI) '% Prediction Interval']);
     else
-        legend('predicted Load', 'True');
+        legend('Predicted', 'Observed');
     end
    
     % Labels of the graph
-    xlabel('Time steps in a day');
+    xlabel('Hour');
     ylabel('Load [kW]');
     title(name);
 
