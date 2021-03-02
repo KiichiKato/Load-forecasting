@@ -38,13 +38,13 @@ function coeff=DMset_pso(y_predict, y_true)
         % Input praemters for PSO
         options = optimoptions('particleswarm', 'MaxIterations',2000,'FunctionTolerance', 1e-25, 'MaxStallIterations', 1500,'Display', 'none');
         % Call PSO and get optimal weights for each hour
-        [coeff(hour, :),~,~,~] = particleswarm(objFunc,nvars,lb,ub, options);   
-%         sumofcoeff=sum(coeff(hour, :));
-%         for j=1:3
-%             coeff(hour, j)=coeff(hour, j)/sumofcoeff;
-%         end
-%         clear j;        
+        [coeff(hour, :),~,~,~] = particleswarm(objFunc,nvars,lb,ub, options); 
+        sumofcoeff(hour,1)=hour;
+        sumofcoeff(hour,2)=sum(coeff(hour, :));
     end
+    Vname = {'Hour','Total weight'};
+    debugData = [Vname;num2cell(sumofcoeff)];
+    writecell(debugData,'debugData.csv')
 
 end
 

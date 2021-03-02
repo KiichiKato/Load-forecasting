@@ -30,7 +30,7 @@ function flag = DMset_setDemandModel(LongTermPastData,ValidDays)
                                    'HighestTemp' ...
                                    'Weather'};
     end    
-    
+
     %% Get file path of csv data
     filepath = fileparts(LongTermPastData); 
     
